@@ -1,43 +1,14 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 
-// Add TypeScript interface for the Web Speech API
 interface SpeechRecognitionEvent extends Event {
   resultIndex: number;
-  results: {
-    [index: number]: {
-      [index: number]: {
-        transcript: string;
-        confidence: number;
-      }
-    }
-  };
+  results: SpeechRecognitionResultList;
 }
 
 interface SpeechRecognitionErrorEvent extends Event {
   error: string;
-  message: string;
-}
-
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  start: () => void;
-  stop: () => void;
-  abort: () => void;
-  onresult: (event: SpeechRecognitionEvent) => void;
-  onerror: (event: SpeechRecognitionErrorEvent) => void;
-  onend: () => void;
-}
-
-// Add interface for the window object
-declare global {
-  interface Window {
-    SpeechRecognition?: new () => SpeechRecognition;
-    webkitSpeechRecognition?: new () => SpeechRecognition;
-  }
+  message?: string;
 }
 
 interface UseSpeechToTextProps {
@@ -53,90 +24,87 @@ interface UseSpeechToTextReturn {
   hasSupport: boolean;
 }
 
-const useSpeechToText = ({ 
-  onTranscriptChange 
-}: UseSpeechToTextProps = {}): UseSpeechToTextReturn => {
+const useSpeechToText = ({ onTranscriptChange }: UseSpeechToTextProps = {}): UseSpeechToTextReturn => {
   const [transcript, setTranscript] = useState("");
   const [isListening, setIsListening] = useState(false);
-  const [hasSupport, setHasSupport] = useState(false);
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const [hasSupport] = useState<boolean>("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
+  const [retryCount, setRetryCount] = useState(0);
+  const recognitionRef = useState<SpeechRecognition | null>(null);
 
-  // Initialize speech recognition
   useEffect(() => {
-    // Browser compatibility check
+    if (!hasSupport) return;
+
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
-    if (SpeechRecognition) {
-      setHasSupport(true);
-      const recognitionInstance = new SpeechRecognition();
-      
-      // Configure recognition
-      recognitionInstance.continuous = true;
-      recognitionInstance.interimResults = true;
-      recognitionInstance.lang = 'en-US';
-      
-      // Add event listeners
-      recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
-        const current = event.resultIndex;
-        const newTranscript = event.results[current][0].transcript;
-        setTranscript(newTranscript);
-        
-        if (onTranscriptChange) {
-          onTranscriptChange(newTranscript);
-        }
-      };
-      
-      recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
-        console.error('Speech recognition error', event.error);
-        setIsListening(false);
-        toast.error("Speech recognition failed. Please try again.");
-      };
-      
-      recognitionInstance.onend = () => {
-        setIsListening(false);
-      };
-      
-      setRecognition(recognitionInstance);
-    } else {
-      console.warn('Speech recognition not supported in this browser');
-    }
-    
-    // Cleanup
-    return () => {
-      if (recognition) {
-        recognition.stop();
+    if (!SpeechRecognition) return;
+
+    const recognitionInstance = new SpeechRecognition();
+    recognitionInstance.continuous = true;
+    recognitionInstance.interimResults = true;
+    recognitionInstance.lang = "en-US";
+
+    recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
+      let interimTranscript = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        interimTranscript += event.results[i][0].transcript + " ";
+      }
+      setTranscript(interimTranscript.trim());
+      if (onTranscriptChange) onTranscriptChange(interimTranscript.trim());
+    };
+
+    recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
+      console.error("Speech recognition error:", event.error);
+      toast.error("Speech recognition error: " + event.error);
+      setIsListening(false);
+
+      // Retry only if it's a network error & retry count < 3
+      if (event.error === "network" && retryCount < 3) {
+        setRetryCount(prev => prev + 1);
+        toast.warning(`Network error. Retrying in 3 seconds... (Attempt ${retryCount + 1}/3)`);
+        setTimeout(startListening, 3000);
+      } else if (retryCount >= 3) {
+        toast.error("Max retry limit reached. Check your network and try again later.");
       }
     };
-  }, [onTranscriptChange]);
+
+    recognitionInstance.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef[0] = recognitionInstance;
+  }, [hasSupport, onTranscriptChange, retryCount]);
 
   const startListening = useCallback(() => {
-    if (recognition && !isListening) {
-      try {
-        recognition.start();
-        setIsListening(true);
-        toast.info("Listening...");
-      } catch (error) {
-        console.error('Error starting speech recognition:', error);
-        toast.error("Couldn't start speech recognition. Please try again.");
-      }
-    } else if (!hasSupport) {
+    if (!recognitionRef[0]) {
       toast.error("Speech recognition is not supported in your browser.");
+      return;
     }
-  }, [recognition, isListening, hasSupport]);
+
+    try {
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(() => {
+        recognitionRef[0].start();
+        setIsListening(true);
+        setRetryCount(0); // Reset retry count on successful start
+        toast.info("Listening...");
+      }).catch(() => {
+        toast.error("Microphone access denied. Please allow microphone permissions.");
+      });
+    } catch (error) {
+      console.error("Error starting speech recognition:", error);
+      toast.error("Couldn't start speech recognition. Please try again.");
+    }
+  }, []);
 
   const stopListening = useCallback(() => {
-    if (recognition && isListening) {
-      recognition.stop();
+    if (recognitionRef[0] && isListening) {
+      recognitionRef[0].stop();
       setIsListening(false);
       toast.success("Speech recognition stopped.");
     }
-  }, [recognition, isListening]);
+  }, [isListening]);
 
   const resetTranscript = useCallback(() => {
     setTranscript("");
-    if (onTranscriptChange) {
-      onTranscriptChange("");
-    }
+    if (onTranscriptChange) onTranscriptChange("");
   }, [onTranscriptChange]);
 
   return {
@@ -145,7 +113,7 @@ const useSpeechToText = ({
     startListening,
     stopListening,
     resetTranscript,
-    hasSupport
+    hasSupport,
   };
 };
 
