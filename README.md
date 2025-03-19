@@ -1,69 +1,58 @@
-# Welcome to your Lovable project
+# LoanONE AI - Intelligent Loan Approval System
 
-## Project info
+## 🚀 Revolutionizing Loan Approvals with AI & Automation
 
-**URL**: https://lovable.dev/projects/084ee495-82b8-4253-8fd7-1e24d22061d4
+LoanONE AI is an innovative, AI-driven online loan approval system designed to simplify and accelerate loan applications while ensuring security, compliance, and accessibility. By integrating cutting-edge AI and speech recognition technologies, LoanONE AI eliminates unnecessary delays, enhances user experience, and streamlines the verification process.
 
-## How can I edit this code?
+## 🎯 Key Features
 
-There are several ways of editing your application.
+### 🏡 **Landing Page: A Seamless Start**
+- Modern, responsive UI with an intuitive design.
+- Clear call-to-action ("Get Your Loan Approved Fast and Easy").
+- Navigation links to **About Us** and **Contact**, redirecting to the footer.
+- ₹ (Indian Rupee) currency support across the platform.
 
-**Use Lovable**
+### 🔐 **Secure Login System**
+- Multi-option login: **Email/Phone Number + Password**.
+- Integrated **Google Speech-to-Text** for effortless voice-based entry.
+- "Forgot Password" and "Sign Up" links for easy account recovery.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/084ee495-82b8-4253-8fd7-1e24d22061d4) and start prompting.
+### 📹 **Interactive Intro & Questionnaire**
+- AI-generated **instructional videos** guiding users through each form field.
+- Video playback with basic controls (Play/Pause).
+- Camera & microphone permissions for enhanced fraud detection.
+- Picture-in-picture (PiP) mode for real-time video monitoring.
+- Smart loan questionnaire collecting essential details.
 
-Changes made via Lovable will be committed automatically to this repo.
+### 📑 **Document Upload & Verification**
+- Easy-to-use, category-specific document upload fields.
+- File previews for uploaded documents.
+- Supports PDF, JPG, and PNG formats (max 10MB).
+- Progress indicators for real-time upload feedback.
 
-**Use your preferred IDE**
+### ✅ **Loan Verification & Status**
+- AI-powered verification with a **5–10 second processing delay**.
+- Loan status updates: **Approved, Pending, or Declined**.
+- Currency consistency: All monetary values displayed in **₹**.
+- "Accept Offer" and "Contact Support" options.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 🎥 **Live Camera & AI-based Face Detection**
+- **OpenCV 4.5.5.64 & Face-Recognition 1.3.0** for multi-face detection.
+- Automatic video preview window for live face verification.
+- Smooth permission handling with error messaging.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🛠️ **Technology Stack**
+- **Frontend:** Vite, TypeScript, React, shadcn-ui, Tailwind CSS
+- **Speech Recognition:** Google Cloud Speech-to-Text API
+- **Face Detection:** OpenCV 4.5.5.64, Face-Recognition 1.3.0
+- **Security:** HTTPS, Password Encryption, CSRF Protection
 
-Follow these steps:
+## 🎯 **Why LoanONE AI?**
+✅ **AI-Powered**: Intelligent speech & face recognition for smooth applications.  
+✅ **Secure & Compliant**: End-to-end encryption, fraud detection & CSRF protection.  
+✅ **Fast & User-Friendly**: Interactive UI with video tutorials for better guidance.  
+✅ **Seamless Experience**: One-stop solution for loan approvals with real-time updates.  
+✅ **Hackathon-Ready**: A cutting-edge, innovative solution designed to impress judges.  
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/084ee495-82b8-4253-8fd7-1e24d22061d4) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
